@@ -57,6 +57,39 @@ pub async fn get_recommendation_by_id(
 }
 
 
+pub async fn get_new_recommendation(
+    db_client: &Arc<Pool<PostgresConnectionManager<NoTls>>>,
+    id: &String, 
+) -> Result<Value, Box<dyn Error>> {
+    let conn = db_client.get().await?;
+    
+    let row = conn
+        .query_one(
+            r#"
+            SELECT 
+                proposal_id, 
+                recommendation, 
+            FROM recommendations
+            WHERE new_flag = true
+            ORDER BY created_at DESC
+            LIMIT 1
+            "#,
+            &[id],
+        )
+        .await?;
+    
+    let proposal_id: String = row.get("proposal_id");
+    let recommendation: Value = row.get("recommendation");
+    
+    let result = json!({
+        "proposalId": proposal_id,
+        "voteOption": recommendation,
+    });
+    
+    Ok(result)
+}
+
+
 
 pub async fn save_recommendation(
     db_client: &Arc<Pool<PostgresConnectionManager<NoTls>>>,

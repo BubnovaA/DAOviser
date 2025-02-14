@@ -49,6 +49,7 @@ async fn main() -> std::io::Result<()> {
             .route("/proposals/{space_id}", web::get().to(get_proposals))
             .route("/recommendation/{proposal_id}", web::get().to(get_recommendation))
             .route("/vote/{proposal_id}", web::post().to(post_vote))
+            .route("/get_prop_and_rec", web::get().to(get_prop_and_rec))
     })
     .bind("0.0.0.0:8080")?
     .run()

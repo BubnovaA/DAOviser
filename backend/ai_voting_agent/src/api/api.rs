@@ -13,7 +13,7 @@ use crate::{
     },
     recommendation::{
         ai::get_analysis_response,
-        repository::{get_recommendation_by_id, save_recommendation},
+        repository::{get_recommendation_by_id, save_recommendation, get_new_recommendation},
     },
 };
 
@@ -58,6 +58,20 @@ pub async fn get_recommendation(
     let proposal_id = path.into_inner();
     info!("proposal_id: {:?}", proposal_id);
     let recommendation = get_recommendation_by_id(&app_state.db_client, &proposal_id).await;
+    match recommendation {
+        Ok(json_value) => HttpResponse::Ok().json(json_value),
+        Err(err) => {
+            eprintln!("Error fetching recommendation: {}", err);
+            HttpResponse::InternalServerError().body(err.to_string())
+        }
+    }
+}
+
+
+pub async fn get_prop_and_rec(
+    app_state: web::Data<AppState>,
+) -> impl Responder {
+    let recommendation = get_new_recommendation(&app_state.db_client).await;
     match recommendation {
         Ok(json_value) => HttpResponse::Ok().json(json_value),
         Err(err) => {
