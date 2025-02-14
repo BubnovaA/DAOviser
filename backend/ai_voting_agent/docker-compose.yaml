@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ai_voting_agent:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    networks:
+      - ai_voting_agent_net
+
+networks:
+  ai_voting_agent_net:
+    driver: bridge
